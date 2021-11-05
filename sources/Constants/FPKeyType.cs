@@ -3,7 +3,7 @@
     /// <summary>
     /// FairPlay Streaming Programing Guide.pdf
     /// </summary>
-    internal enum FPKeyType : uint
+    public enum FPKeyType : uint
     {
         /// <summary>
         /// Unknown

@@ -13,6 +13,7 @@ using FoolishTech.FairPlay.Exceptions;
 using FoolishTech.FairPlay.Interfaces;
 using FoolishTech.Support.Throws;
 using FoolishTech.sources.Constants;
+using FoolishTech.sources.Models;
 
 namespace FoolishTech.FairPlay
 {
@@ -21,8 +22,6 @@ namespace FoolishTech.FairPlay
         private IEnumerable<FPProvider> Providers { get; set; }
         private IContentKeyLocator Locator { get; set; }
 
-        public int LicenseDuration { get; set; }
-
         public FPServer(FPProvider provider, IContentKeyLocator locator)
         {
             ArgumentThrow.IfNull(provider, "Unable to create server. Provider can not be null.", nameof(provider));
@@ -30,13 +29,13 @@ namespace FoolishTech.FairPlay
 
             this.Providers = new List<FPProvider>() { provider };
             this.Locator = locator;
-
-            this.LicenseDuration = 3600;
         }
 
-        public async Task<byte[]> GenerateCKC(byte[] spc, object info = null)
+        public async Task<byte[]> GenerateCKC(byte[] spc, object info = null, FPLicenseOptions licenseOptions = null)
         {
             var buffer = new ReadOnlyMemory<byte>(spc);
+
+            licenseOptions ??= new FPLicenseOptions();
 
             // We try to read SPC message. 
             SPCMessage request = null;
@@ -50,14 +49,14 @@ namespace FoolishTech.FairPlay
             catch (Exception ex) { throw new FPInvalidProviderException("EXC_0002", "Received SPCMessage contains a unregistered FairPlay provider.", ex); }
 
             CKCMessage response = null;
-            try { response = await GenerateCKC(provider, request, info); }
+            try { response = await GenerateCKC(provider, request, info, licenseOptions); }
             catch (FPException) { throw; }
             catch (Exception ex) { throw new FPInvalidContextException("EXC_0003", "Unable to process SPC. See 'innerException' for more information.", ex); }
 
             return response.Binary;
         }
 
-        private async Task<CKCMessage> GenerateCKC(FPProvider provider, SPCMessage spc, object info)
+        private async Task<CKCMessage> GenerateCKC(FPProvider provider, SPCMessage spc, object info, FPLicenseOptions licenseOptions)
         {
             if (spc == null) throw new FPInvalidContextException("EXC_0004", "Null SPCMessage received. Unable to process request.");
             if (provider == null) throw new FPInvalidProviderException("EXC_0005", "Null FPProvider received. Unable to process request.");
@@ -69,7 +68,7 @@ namespace FoolishTech.FairPlay
             catch (Exception ex) { throw new FPInvalidContextException("EXC_0007", "Unable to process SPC. See 'innerException' for more information.", ex); }
 
             IEnumerable<TLLVSlab> ckcSlabs = null;
-            try { ckcSlabs = await GenerateCKC(new DFunction(provider.ASKey), spcSlabs, info); }
+            try { ckcSlabs = await GenerateCKC(new DFunction(provider.ASKey), spcSlabs, info, licenseOptions); }
             catch (FPException) { throw; }
             catch (Exception ex) { throw new FPInvalidContextException("EXC_0008", "Unable to process CKC. See 'innerException' for more information.", ex); }
 
@@ -121,7 +120,7 @@ namespace FoolishTech.FairPlay
             return new CKCMessage(1, iv, ckc);
         }
 
-        private async Task<IEnumerable<TLLVSlab>> GenerateCKC(DFunction derivator, IEnumerable<TLLVSlab> spcSlabs, object info)
+        private async Task<IEnumerable<TLLVSlab>> GenerateCKC(DFunction derivator, IEnumerable<TLLVSlab> spcSlabs, object info, FPLicenseOptions licenseOptions)
         {
             var ckcSlabs = new List<TLLVSlab>();
 
@@ -212,7 +211,7 @@ namespace FoolishTech.FairPlay
                 if (MediaPlaybackPayload.CreationDate > DateTime.UtcNow.AddHours(6)) throw new FPContextDateViolatedException("EXC_0037", "Unable to process SPC. Date range violated.");
 
                 DurationCKPayload DurationContentKeyPayload = null;
-                try { DurationContentKeyPayload = new DurationCKPayload((UInt32)this.LicenseDuration, 0, FPKeyType.LeaseOnly); }
+                try { DurationContentKeyPayload = new DurationCKPayload((uint)licenseOptions.LicenseDuration, (uint)licenseOptions.RentalDuration, licenseOptions.KeyType); }
                 catch (FPException) { throw; }
                 catch (Exception ex) { throw new FPInvalidContextException("EXC_0028", "Unable to process SPC. See 'innerException' for more information.", ex); }
 
@@ -240,7 +239,7 @@ namespace FoolishTech.FairPlay
                 if (CapabilitiesPayload.HasCapability(LowCapabilities.HDCPEnforcement))
                 {
                     HDCPEnforcementPayload HDCPEnforcementPayload = null;
-                    try { HDCPEnforcementPayload = new HDCPEnforcementPayload(HDCPTypeRequierement.HDCPType0Required); }
+                    try { HDCPEnforcementPayload = new HDCPEnforcementPayload(licenseOptions.HDCPContentType); }
                     catch (FPException) { throw; }
                     catch (Exception ex) { throw new FPInvalidContextException("EXC_0032", "Unable to process SPC. See 'innerException' for more information.", ex); }
 
