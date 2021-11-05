@@ -1,18 +1,18 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>FoolishTech</RootNamespace>
     <EnableDefaultCompileItems>False</EnableDefaultCompileItems>
     <IsPackable>true</IsPackable>
-    <PackageVersion>1.3.0</PackageVersion>
-    <PackageId>FoolishTech.FairPlay</PackageId>
+    <PackageVersion>1.4.0</PackageVersion>
+    <PackageId>FoolishTech.Proto.FairPlay</PackageId>
     <Title>FairPlay Security Module</Title>
     <PackageDescription>Implementation of FairPlay Security Module for entitlement delivery.</PackageDescription>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
-    <Authors>diegofer, diegojfer</Authors>
+    <Authors>diegofer, diegojfer, ProtoScott</Authors>
     <PackageTags>fairplay, ksm, key, security, server, module, apple, ios, iphone, hls, video, drm, client</PackageTags>
-    <RepositoryUrl>https://github.com/diegojfer/FairPlay-KSM.git</RepositoryUrl>
+    <RepositoryUrl>https://github.com/ProtoScott/FairPlay-KSM</RepositoryUrl>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="sources/Support/Throws/ArgumentThrow.cs" />
