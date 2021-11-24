@@ -1,6 +1,6 @@
 using System;
 
-namespace FoolishTech.Support.Throws
+namespace Protostream.Support.Throws
 {
     sealed internal class ArgumentThrow
     {

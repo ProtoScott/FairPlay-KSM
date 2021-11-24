@@ -2,9 +2,9 @@ using System;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 
-using FoolishTech.Support.Throws;
+using Protostream.Support.Throws;
 
-namespace FoolishTech.FairPlay
+namespace Protostream.FairPlay
 {
     public sealed class FPProvider
     {

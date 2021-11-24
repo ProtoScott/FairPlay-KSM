@@ -1,4 +1,4 @@
-﻿namespace FoolishTech.sources.Constants
+﻿namespace Protostream.sources.Constants
 {
     /// <summary>
     /// FairPlay Streaming Programing Guide.pdf

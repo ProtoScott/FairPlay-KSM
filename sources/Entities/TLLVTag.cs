@@ -1,8 +1,8 @@
 using System;
-using FoolishTech.Support.Binary;
-using FoolishTech.Support.Throws;
+using Protostream.Support.Binary;
+using Protostream.Support.Throws;
 
-namespace FoolishTech.FairPlay.Entities
+namespace Protostream.FairPlay.Entities
 {
     internal class TLLVTag
     {

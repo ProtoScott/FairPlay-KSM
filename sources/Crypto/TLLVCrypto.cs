@@ -2,11 +2,11 @@ using System;
 using System.IO;
 using System.Security.Cryptography;
 
-using FoolishTech.FairPlay.Entities;
-using FoolishTech.Support.Throws;
+using Protostream.FairPlay.Entities;
+using Protostream.Support.Throws;
 
 
-namespace FoolishTech.FairPlay.Crypto
+namespace Protostream.FairPlay.Crypto
 {
     internal static class TLLVCrypto 
     {        

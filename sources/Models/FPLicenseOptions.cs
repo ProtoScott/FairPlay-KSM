@@ -1,11 +1,10 @@
-﻿using FoolishTech.FairPlay.Entities.Payload;
-using FoolishTech.sources.Constants;
+﻿using Protostream.FairPlay.Entities.Payload;
+using Protostream.sources.Constants;
 
-namespace FoolishTech.sources.Models
+namespace Protostream.sources.Models
 {
     public class FPLicenseOptions
     {
-
         public FPHDCPContentType HDCPContentType { get; set; }
 
         public FPKeyType KeyType { get; }

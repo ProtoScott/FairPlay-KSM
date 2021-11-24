@@ -11,9 +11,9 @@ This implementation can be used as license expeditor or spc-ckc debugger (partia
 
 ![NuGet](https://www.nuget.org/Content/gallery/img/logo-header.svg)
 
-FairPlay has been packaged as [NuGet package](https://www.nuget.org/packages/FoolishTech.FairPlay/), so you only have to include the `FoolishTech.FairPlay` package in your project.
+FairPlay has been packaged as [NuGet package](https://www.nuget.org/packages/Protostream.FairPlay/), so you only have to include the `Protostream.FairPlay` package in your project.
 
-`dotnet add package FoolishTech.FairPlay`
+`dotnet add package Protostream.FairPlay`
 
 ## How can I use the library?
 
@@ -27,12 +27,12 @@ After that, you can run your own HTTP license server. Check-out our [examples](h
 using  System;
 using  System.Text;
 using  System.Threading.Tasks;
-using  FoolishTech.FairPlay;
-using  FoolishTech.FairPlay.Models;
-using  FoolishTech.FairPlay.Interfaces;
-using  FoolishTech.FairPlay.Exceptions;
+using  Protostream.FairPlay;
+using  Protostream.FairPlay.Models;
+using  Protostream.FairPlay.Interfaces;
+using  Protostream.FairPlay.Exceptions;
 
-namespace FoolishTech.SimpleExpeditor
+namespace Protostream.SimpleExpeditor
 {
 	public class HardcodedKeyLocator: IContentKeyLocator
 	{

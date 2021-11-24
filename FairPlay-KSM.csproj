@@ -2,11 +2,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <RootNamespace>FoolishTech</RootNamespace>
+    <RootNamespace>Protostream</RootNamespace>
     <EnableDefaultCompileItems>False</EnableDefaultCompileItems>
     <IsPackable>true</IsPackable>
     <PackageVersion>1.4.0</PackageVersion>
-    <PackageId>FoolishTech.Proto.FairPlay</PackageId>
+    <PackageId>Protostream.FairPlay</PackageId>
     <Title>FairPlay Security Module</Title>
     <PackageDescription>Implementation of FairPlay Security Module for entitlement delivery.</PackageDescription>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>

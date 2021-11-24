@@ -1,8 +1,8 @@
 using System;
 using System.Linq;
-using FoolishTech.FairPlay.Interfaces;
+using Protostream.FairPlay.Interfaces;
 
-namespace FoolishTech.FairPlay.Models
+namespace Protostream.FairPlay.Models
 {
     public class FPStaticKey: IContentKey
     {

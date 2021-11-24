@@ -1,10 +1,10 @@
-using FoolishTech.sources.Constants;
-using FoolishTech.Support.Binary;
-using FoolishTech.Support.Throws;
+using Protostream.sources.Constants;
+using Protostream.Support.Binary;
+using Protostream.Support.Throws;
 using System;
 using System.IO;
 
-namespace FoolishTech.FairPlay.Entities.Payload
+namespace Protostream.FairPlay.Entities.Payload
 {
     sealed internal class DurationCKPayload
     {
