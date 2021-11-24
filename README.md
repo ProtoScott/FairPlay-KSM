@@ -74,3 +74,4 @@ Yes! Open pull request. :D
 ## Authors
 
 Diego Fernández - [me@diegofer.com](mailto:me@diegofer.com) 
+Scott Davies - [scott@protostream.io](mailto:scott@protostream.io) 
