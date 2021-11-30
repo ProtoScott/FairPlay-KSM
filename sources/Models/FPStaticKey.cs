@@ -1,6 +1,5 @@
-using System;
-using System.Linq;
 using Protostream.FairPlay.Interfaces;
+using Protostream.sources.Extensions;
 
 namespace Protostream.FairPlay.Models
 {
@@ -10,9 +9,9 @@ namespace Protostream.FairPlay.Models
     
         public byte[] IV { get; private set; }
 
-        public FPStaticKey(string hexKey, string hexIv) {
-            this.Key = Enumerable.Range(0, hexKey.Length).Where(x => x % 2 == 0).Select(x => Convert.ToByte(hexKey.Substring(x, 2), 16)).ToArray();
-            this.IV = Enumerable.Range(0, hexIv.Length).Where(x => x % 2 == 0).Select(x => Convert.ToByte(hexIv.Substring(x, 2), 16)).ToArray();
+        public FPStaticKey(string keyHex, string ivHex) {
+            this.Key = keyHex.HexToByteArray();
+            this.IV = ivHex.HexToByteArray();
         }
 
         public FPStaticKey(byte[] key, byte[] iv) {

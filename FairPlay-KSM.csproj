@@ -5,7 +5,7 @@
     <RootNamespace>Protostream</RootNamespace>
     <EnableDefaultCompileItems>False</EnableDefaultCompileItems>
     <IsPackable>true</IsPackable>
-    <PackageVersion>1.4.0</PackageVersion>
+    <PackageVersion>1.5.0</PackageVersion>
     <PackageId>Protostream.FairPlay</PackageId>
     <Title>FairPlay Security Module</Title>
     <PackageDescription>Implementation of FairPlay Security Module for entitlement delivery.</PackageDescription>
@@ -57,9 +57,14 @@
     <Compile Include="sources/FPExtractor.cs" />
     <Compile Include="sources/Models/FPStaticKey.cs" />
     <Compile Include="sources\Constants\FPKeyType.cs" />
+    <Compile Include="sources\Extensions\StringExtensions.cs" />
     <Compile Include="sources\Models\FPLicenseOptions.cs" />
+    <Compile Include="sources\Options\FPProviderOptions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="LICENSE.md" Pack="true" PackagePath="$(PackageLicenseFile)" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
   </ItemGroup>
 </Project>
