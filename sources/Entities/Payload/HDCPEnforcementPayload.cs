@@ -1,15 +1,15 @@
 using System;
 using System.IO;
-using FoolishTech.Support.Binary;
-using FoolishTech.Support.Throws;
+using Protostream.Support.Binary;
+using Protostream.Support.Throws;
 
-namespace FoolishTech.FairPlay.Entities.Payload
+namespace Protostream.FairPlay.Entities.Payload
 {
     sealed internal class HDCPEnforcementPayload 
     {
         private ReadOnlyMemory<byte> Storage { get; set; }
 
-        internal HDCPTypeRequierement Type { get => ((HDCPTypeRequierement)BinaryConverter.ReadUInt64(this.Storage.Slice(0, 8), BinaryConverter.Endianess.BigEndian)).DefinedOrDefault(); }
+        internal FPHDCPContentType Type { get => ((FPHDCPContentType)BinaryConverter.ReadUInt64(this.Storage.Slice(0, 8), BinaryConverter.Endianess.BigEndian)).DefinedOrDefault(); }
         
         internal byte[] Binary { get => this.Storage.ToArray(); }
 
@@ -21,7 +21,7 @@ namespace FoolishTech.FairPlay.Entities.Payload
             this.Storage = buffer.Slice(0, 8);
         }
 
-        internal HDCPEnforcementPayload(HDCPTypeRequierement type)
+        internal HDCPEnforcementPayload(FPHDCPContentType type)
         {
             var stream = new MemoryStream();
             stream.Write(BinaryConverter.WriteUInt64((UInt64)type.DefinedOrDefault(), BinaryConverter.Endianess.BigEndian));
@@ -29,20 +29,38 @@ namespace FoolishTech.FairPlay.Entities.Payload
         }
     }
 
-    internal enum HDCPTypeRequierement: UInt64
+    public enum FPHDCPContentType : ulong
     {
-        HDCPNotRequired = 0xef72894ca7895b78,
+        /// <summary>
+        /// HDCP not required.
+        /// </summary>
+        NOT_REQUIRED = 0xef72894ca7895b78,
 
-        HDCPType0Required = 0x40791ac78bd5c571,
+        /// <summary>
+        /// HDCP Type 2 is required.
+        /// HDCP Repeater may NOT:
+        /// Output the content to ANY non-HDCP Protected interface; including:
+        ///     Other Content Protection
+        ///     Any analog Interface
+        /// </summary>
+        TYPE_0 = 0x40791ac78bd5c571,
 
-        HDCPType1Required = 0x285a0863bba8e1d3
+        /// <summary>
+        /// HDCP Type 1 is required.
+        /// HDCP Repeater may NOT:
+        /// Re-encrypt onto a lower HDCP version (e.g. HDCP 2.2 -> HDCP 2.0)
+        /// Output the content to ANY non-HDCP Protected interface; including:
+        ///     Other Content Protection
+        ///     Any analog Interface
+        /// </summary>
+        TYPE_1 = 0x285a0863bba8e1d3
     }
 
     internal static class HDCPTypeRequierementExtensions 
     {
-        public static HDCPTypeRequierement DefinedOrDefault(this HDCPTypeRequierement state)
+        public static FPHDCPContentType DefinedOrDefault(this FPHDCPContentType state)
         {   
-            return Enum.IsDefined(typeof(HDCPTypeRequierement), state) ? state : HDCPTypeRequierement.HDCPType0Required;
+            return Enum.IsDefined(typeof(FPHDCPContentType), state) ? state : FPHDCPContentType.TYPE_0;
         }
     } 
 }

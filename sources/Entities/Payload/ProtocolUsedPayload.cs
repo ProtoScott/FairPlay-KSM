@@ -1,9 +1,9 @@
 using System;
 using System.IO;
-using FoolishTech.Support.Throws;
-using FoolishTech.Support.Binary;
+using Protostream.Support.Throws;
+using Protostream.Support.Binary;
 
-namespace FoolishTech.FairPlay.Entities.Payload 
+namespace Protostream.FairPlay.Entities.Payload 
 {
     sealed internal class ProtocolUsedPayload 
     {

@@ -5,22 +5,22 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 
-using FoolishTech.FairPlay.Crypto;
-using FoolishTech.FairPlay.Entities;
-using FoolishTech.FairPlay.Entities.Payload;
-using FoolishTech.FairPlay.Entities.Payload.Parcel;
-using FoolishTech.FairPlay.Exceptions;
-using FoolishTech.FairPlay.Interfaces;
-using FoolishTech.Support.Throws;
+using Protostream.FairPlay.Crypto;
+using Protostream.FairPlay.Entities;
+using Protostream.FairPlay.Entities.Payload;
+using Protostream.FairPlay.Entities.Payload.Parcel;
+using Protostream.FairPlay.Exceptions;
+using Protostream.FairPlay.Interfaces;
+using Protostream.Support.Throws;
+using Protostream.sources.Constants;
+using Protostream.sources.Models;
 
-namespace FoolishTech.FairPlay
+namespace Protostream.FairPlay
 {
     public sealed class FPServer
     {
-        private IEnumerable<FPProvider> Providers { get; set; }
-        private IContentKeyLocator Locator { get; set; }
-
-        public int LicenseDuration { get; set; }
+        private IEnumerable<FPProvider> Providers { get; set; }
+        private IContentKeyLocator Locator { get; set; }
 
         public FPServer(FPProvider provider, IContentKeyLocator locator)
         {
@@ -29,61 +29,62 @@ namespace FoolishTech.FairPlay
 
             this.Providers = new List<FPProvider>() { provider };
             this.Locator = locator;
-
-            this.LicenseDuration = 3600;
         }
 
-        public async Task<byte[]> GenerateCKC(byte[] spc, object info = null)
+        public async Task<byte[]> GenerateCKC(byte[] spc, object info = null, FPLicenseOptions licenseOptions = null)
         {
             var buffer = new ReadOnlyMemory<byte>(spc);
+
+            licenseOptions ??= new FPLicenseOptions();
 
             // We try to read SPC message. 
             SPCMessage request = null;
             try { request = new SPCMessage(buffer); }
-            catch (FPException) { throw; }
+            catch (FPException) { throw; }
             catch (Exception ex) { throw new FPInvalidContextException("EXC_0001", "Unable to parse SPC. See 'innerException' for more information.", ex); }
 
             FPProvider provider = null;
             try { provider = this.Providers.First(p => Enumerable.SequenceEqual(p.Hash, request.ProviderHash)); }
-            catch (FPException) { throw; }
+            catch (FPException) { throw; }
             catch (Exception ex) { throw new FPInvalidProviderException("EXC_0002", "Received SPCMessage contains a unregistered FairPlay provider.", ex); }
 
             CKCMessage response = null;
-            try { response = await GenerateCKC(provider, request, info); }
-            catch (FPException) { throw; }
+            try { response = await GenerateCKC(provider, request, info, licenseOptions); }
+            catch (FPException) { throw; }
             catch (Exception ex) { throw new FPInvalidContextException("EXC_0003", "Unable to process SPC. See 'innerException' for more information.", ex); }
 
             return response.Binary;
         }
 
-        private async Task<CKCMessage> GenerateCKC(FPProvider provider, SPCMessage spc, object info)
+        private async Task<CKCMessage> GenerateCKC(FPProvider provider, SPCMessage spc, object info, FPLicenseOptions licenseOptions)
         {
             if (spc == null) throw new FPInvalidContextException("EXC_0004", "Null SPCMessage received. Unable to process request.");
             if (provider == null) throw new FPInvalidProviderException("EXC_0005", "Null FPProvider received. Unable to process request.");
             if (Enumerable.SequenceEqual(provider.Hash, spc.ProviderHash) == false) throw new FPInvalidProviderException("EXC_0006", "Received SPCMessage contains a unregistered FairPlay provider.");
 
             IEnumerable<TLLVSlab> spcSlabs = null;
-            try { spcSlabs = TLLVSlab.FromBuffer(spc.UnscrambledPayload(provider.RSAKey)); } 
-            catch (FPException) { throw; }
+            try { spcSlabs = TLLVSlab.FromBuffer(spc.UnscrambledPayload(provider.RSAKey)); }
+            catch (FPException) { throw; }
             catch (Exception ex) { throw new FPInvalidContextException("EXC_0007", "Unable to process SPC. See 'innerException' for more information.", ex); }
 
             IEnumerable<TLLVSlab> ckcSlabs = null;
-            try { ckcSlabs = await GenerateCKC(new DFunction(provider.ASKey), spcSlabs, info); } 
-            catch (FPException) { throw; }
+            try { ckcSlabs = await GenerateCKC(new DFunction(provider.ASKey), spcSlabs, info, licenseOptions); }
+            catch (FPException) { throw; }
             catch (Exception ex) { throw new FPInvalidContextException("EXC_0008", "Unable to process CKC. See 'innerException' for more information.", ex); }
 
             byte[] seed = null;
             try { seed = spcSlabs.First(s => s.Tag.Same(TLLVTag.Id.AR)).Payload<ARPayload>().Seed; }
-            catch (FPException) { throw; }
+            catch (FPException) { throw; }
             catch (Exception ex) { throw new FPInvalidContextException("EXC_0009", "Unable to process SPC. See 'innerException' for more information.", ex); }
-            
+
             byte[] random = null;
             try { random = ckcSlabs.First(s => s.Tag.Same(TLLVTag.Id.R1)).Payload<R1Payload>().R1; }
-            catch (FPException) { throw; }
+            catch (FPException) { throw; }
             catch (Exception ex) { throw new FPInvalidContextException("EXC_0010", "Unable to process SPC. See 'innerException' for more information.", ex); }
-            
+
             byte[] key = null;
-            try {
+            try
+            {
                 using (var sha = SHA1.Create())
                 using (var aes = Aes.Create())
                 {
@@ -99,29 +100,29 @@ namespace FoolishTech.FairPlay
                         cryptoStream.Write(seed);
 
                         key = memoryStream.ToArray();
-                    }    
+                    }
                 }
             }
-            catch (FPException) { throw; }
+            catch (FPException) { throw; }
             catch (Exception ex) { throw new FPInvalidContextException("EXC_0011", "Unable to process CKC. See 'innerException' for more information.", ex); }
-            
+
 
             byte[] iv = new byte[16];
-            try { new Random().NextBytes(iv); } 
-            catch (FPException) { throw; }
+            try { new Random().NextBytes(iv); }
+            catch (FPException) { throw; }
             catch (Exception ex) { throw new FPInvalidContextException("EXC_0012", "Unable to process CKC. See 'innerException' for more information.", ex); }
 
             byte[] ckc = null;
-            try { ckc = TLLVCrypto.ScrambledPayload(TLLVSlab.ToBuffer(ckcSlabs), iv, key); } 
-            catch (FPException) { throw; }
+            try { ckc = TLLVCrypto.ScrambledPayload(TLLVSlab.ToBuffer(ckcSlabs), iv, key); }
+            catch (FPException) { throw; }
             catch (Exception ex) { throw new FPInvalidContextException("EXC_0013", "Unable to process CKC. See 'innerException' for more information.", ex); }
 
             return new CKCMessage(1, iv, ckc);
         }
 
-        private async Task<IEnumerable<TLLVSlab>> GenerateCKC(DFunction derivator, IEnumerable<TLLVSlab> spcSlabs, object info) 
+        private async Task<IEnumerable<TLLVSlab>> GenerateCKC(DFunction derivator, IEnumerable<TLLVSlab> spcSlabs, object info, FPLicenseOptions licenseOptions)
         {
-            var ckcSlabs = new List<TLLVSlab>(); 
+            var ckcSlabs = new List<TLLVSlab>();
 
             byte[] DASk = null;
             try { DASk = derivator.DeriveBytes(spcSlabs.First(p => p.Tag.Same(TLLVTag.Id.R2)).Payload<R2Payload>().R2); }
@@ -151,7 +152,7 @@ namespace FoolishTech.FairPlay
             catch (Exception ex) { throw new FPInvalidContextException("EXC_0018", "Unable to process SPC. See 'innerException' for more information.", ex); }
 
             ckcSlabs.AddRange(spcSlabs.Where(slab => TagReturnRequestPayload.TRR.Select(tag => tag.Code).Contains(slab.Tag.Code)));
-            
+
             AssetPayload AssetIdentifierPayload = null;
             try { AssetIdentifierPayload = spcSlabs.First(p => p.Tag.Same(TLLVTag.Id.Asset)).Payload<AssetPayload>(); }
             catch (FPException) { throw; }
@@ -159,19 +160,19 @@ namespace FoolishTech.FairPlay
 
             IContentKey ContentKey = null;
             try { ContentKey = await this.Locator.FetchContentKey(AssetIdentifierPayload.Identifier, info); }
-            catch (FPException) { throw; }
+            catch (FPException) { throw; }
             catch (Exception ex) { throw new FPKeyLocatorException("EXC_0020", "Unable to fetch content key from key locator. See 'innerException' for more information.", ex); }
-            
+
             if (ContentKey.IV == null || ContentKey.IV.Length != 16) throw new FPInvalidKeyException("EXC_0035", "Invalid IV fetched from key locator. IV can not be null and should be 16 bytes length.");
             if (ContentKey.Key == null || ContentKey.Key.Length != 16) throw new FPInvalidKeyException("EXC_0036", "Invalid key fetched from key locator. Key can not be null and should be 16 bytes length.");
-            
-            EncryptedCKParcel EncryptedContentKeyParcel = null; 
+
+            EncryptedCKParcel EncryptedContentKeyParcel = null;
             try { EncryptedContentKeyParcel = new EncryptedCKParcel(ContentKey.Key); }
             catch (FPException) { throw; }
             catch (Exception ex) { throw new FPInvalidContextException("EXC_0021", "Unable to process SPC. See 'innerException' for more information.", ex); }
 
             EncryptedCKPayload EncryptedContentKeyPayload = null;
-            try { EncryptedContentKeyPayload = new EncryptedCKPayload(ContentKey.IV, EncryptedContentKeyParcel.ScrambledParcel(SessionRandom1Parcel.SK)); }
+            try { EncryptedContentKeyPayload = new EncryptedCKPayload(ContentKey.IV, EncryptedContentKeyParcel.ScrambledParcel(SessionRandom1Parcel.SK)); }
             catch (FPException) { throw; }
             catch (Exception ex) { throw new FPInvalidContextException("EXC_0022", "Unable to process SPC. See 'innerException' for more information.", ex); }
 
@@ -183,7 +184,7 @@ namespace FoolishTech.FairPlay
             ckcSlabs.Add(EncryptedContentKeySlab);
 
             R1Payload Random1Payload = null;
-            try {Random1Payload = new R1Payload(SessionRandom1Parcel.R1); }
+            try { Random1Payload = new R1Payload(SessionRandom1Parcel.R1); }
             catch (FPException) { throw; }
             catch (Exception ex) { throw new FPInvalidContextException("EXC_0024", "Unable to process SPC. See 'innerException' for more information.", ex); }
 
@@ -198,22 +199,22 @@ namespace FoolishTech.FairPlay
             try { MediaPlaybackSlab = spcSlabs.FirstOrDefault(p => p.Tag.Same(TLLVTag.Id.MediaPlayback)); }
             catch (FPException) { throw; }
             catch (Exception ex) { throw new FPInvalidContextException("EXC_0026", "Unable to process SPC. See 'innerException' for more information.", ex); }
-            
-            if (MediaPlaybackSlab != null) 
+
+            if (MediaPlaybackSlab != null)
             {
                 MediaPlaybackPayload MediaPlaybackPayload = null;
                 try { MediaPlaybackPayload = MediaPlaybackSlab.Payload<MediaPlaybackPayload>(); }
                 catch (FPException) { throw; }
                 catch (Exception ex) { throw new FPInvalidContextException("EXC_0027", "Unable to process SPC. See 'innerException' for more information.", ex); }
-            
+
                 if (MediaPlaybackPayload.CreationDate < DateTime.UtcNow.AddHours(-6)) throw new FPContextDateViolatedException("EXC_0036", "Unable to process SPC. Date range violated.");
-                if (MediaPlaybackPayload.CreationDate > DateTime.UtcNow.AddHours(6))  throw new FPContextDateViolatedException("EXC_0037", "Unable to process SPC. Date range violated.");
-                
+                if (MediaPlaybackPayload.CreationDate > DateTime.UtcNow.AddHours(6)) throw new FPContextDateViolatedException("EXC_0037", "Unable to process SPC. Date range violated.");
+
                 DurationCKPayload DurationContentKeyPayload = null;
-                try { DurationContentKeyPayload = new DurationCKPayload((UInt32)this.LicenseDuration, 0, DurationCKType.Rental); }
+                try { DurationContentKeyPayload = new DurationCKPayload((uint)licenseOptions.LicenseDuration, (uint)licenseOptions.RentalDuration, licenseOptions.KeyType); }
                 catch (FPException) { throw; }
                 catch (Exception ex) { throw new FPInvalidContextException("EXC_0028", "Unable to process SPC. See 'innerException' for more information.", ex); }
-            
+
                 TLLVSlab DurationContentKeySlab = null;
                 try { DurationContentKeySlab = new TLLVSlab(TLLVTag.Id.DurationCK, DurationContentKeyPayload.Binary); }
                 catch (FPException) { throw; }
@@ -226,7 +227,7 @@ namespace FoolishTech.FairPlay
             try { CapabilitiesSlab = spcSlabs.FirstOrDefault(p => p.Tag.Same(TLLVTag.Id.Capabilities)); }
             catch (FPException) { throw; }
             catch (Exception ex) { throw new FPInvalidContextException("EXC_0030", "Unable to process SPC. See 'innerException' for more information.", ex); }
-            
+
             if (CapabilitiesSlab != null)
             {
                 // Send HDCPEnforcementSlab
@@ -234,11 +235,11 @@ namespace FoolishTech.FairPlay
                 try { CapabilitiesPayload = CapabilitiesSlab.Payload<CapabilitiesPayload>(); }
                 catch (FPException) { throw; }
                 catch (Exception ex) { throw new FPInvalidContextException("EXC_0031", "Unable to process SPC. See 'innerException' for more information.", ex); }
-            
+
                 if (CapabilitiesPayload.HasCapability(LowCapabilities.HDCPEnforcement))
                 {
                     HDCPEnforcementPayload HDCPEnforcementPayload = null;
-                    try { HDCPEnforcementPayload = new HDCPEnforcementPayload(HDCPTypeRequierement.HDCPType0Required); }
+                    try { HDCPEnforcementPayload = new HDCPEnforcementPayload(licenseOptions.HDCPContentType); }
                     catch (FPException) { throw; }
                     catch (Exception ex) { throw new FPInvalidContextException("EXC_0032", "Unable to process SPC. See 'innerException' for more information.", ex); }
 

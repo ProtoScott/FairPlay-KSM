@@ -3,10 +3,10 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 
-using FoolishTech.Support.Throws;
-using FoolishTech.Support.Binary;
+using Protostream.Support.Throws;
+using Protostream.Support.Binary;
 
-namespace FoolishTech.FairPlay.Crypto
+namespace Protostream.FairPlay.Crypto
 {
     internal sealed class DFunction
     {

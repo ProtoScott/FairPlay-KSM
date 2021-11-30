@@ -1,11 +1,11 @@
 using System.IO;
 using System.Security.Cryptography;
 
-using FoolishTech.FairPlay.Entities.Payload;
-using FoolishTech.FairPlay.Entities.Payload.Parcel;
-using FoolishTech.Support.Throws;
+using Protostream.FairPlay.Entities.Payload;
+using Protostream.FairPlay.Entities.Payload.Parcel;
+using Protostream.Support.Throws;
 
-namespace FoolishTech.FairPlay.Crypto
+namespace Protostream.FairPlay.Crypto
 {
     internal static class EncryptedCKCrypto 
     {

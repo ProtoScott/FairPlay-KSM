@@ -4,16 +4,16 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 
-using FoolishTech.FairPlay.Crypto;
-using FoolishTech.FairPlay.Entities;
-using FoolishTech.FairPlay.Entities.Payload;
-using FoolishTech.FairPlay.Entities.Payload.Parcel;
-using FoolishTech.FairPlay.Models;
-using FoolishTech.FairPlay.Exceptions;
-using FoolishTech.FairPlay.Interfaces;
-using FoolishTech.Support.Throws;
+using Protostream.FairPlay.Crypto;
+using Protostream.FairPlay.Entities;
+using Protostream.FairPlay.Entities.Payload;
+using Protostream.FairPlay.Entities.Payload.Parcel;
+using Protostream.FairPlay.Models;
+using Protostream.FairPlay.Exceptions;
+using Protostream.FairPlay.Interfaces;
+using Protostream.Support.Throws;
 
-namespace FoolishTech.FairPlay
+namespace Protostream.FairPlay
 {
     public sealed class FPExtractor
     {

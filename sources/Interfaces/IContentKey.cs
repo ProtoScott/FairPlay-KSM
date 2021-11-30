@@ -1,4 +1,4 @@
-namespace FoolishTech.FairPlay.Interfaces
+namespace Protostream.FairPlay.Interfaces
 {
     public interface IContentKey
     {

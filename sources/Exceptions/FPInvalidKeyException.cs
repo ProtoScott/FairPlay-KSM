@@ -1,6 +1,6 @@
 using System;
 
-namespace FoolishTech.FairPlay.Exceptions
+namespace Protostream.FairPlay.Exceptions
 {
     public sealed class FPInvalidKeyException: FPException
     {

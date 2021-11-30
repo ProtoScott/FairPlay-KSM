@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace FoolishTech.FairPlay.Interfaces
+namespace Protostream.FairPlay.Interfaces
 {
     public interface IContentKeyLocator
     {

@@ -1,6 +1,6 @@
 using System;
 
-namespace FoolishTech.Support.Binary
+namespace Protostream.Support.Binary
 {
     internal static class BinaryConverter
     {
