@@ -7,7 +7,7 @@ namespace Protostream.sources.Models
     {
         public FPHDCPContentType HDCPContentType { get; set; }
 
-        public FPKeyType KeyType { get; }
+        public FPKeyType KeyType { get; set; }
 
         public int LicenseDuration { get; set; }
 

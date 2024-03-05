@@ -5,7 +5,7 @@
     <RootNamespace>Protostream</RootNamespace>
     <EnableDefaultCompileItems>False</EnableDefaultCompileItems>
     <IsPackable>true</IsPackable>
-    <PackageVersion>2.0.0</PackageVersion>
+    <PackageVersion>2.1.0</PackageVersion>
     <PackageId>Protostream.FairPlay</PackageId>
     <Title>FairPlay Security Module</Title>
     <PackageDescription>Implementation of FairPlay Security Module for entitlement delivery.</PackageDescription>
